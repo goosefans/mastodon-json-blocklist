@@ -9,6 +9,7 @@ import (
 type Config struct {
 	Environment string `default:"dev"`
 	LogLevel    string `default:"info" split_words:"true"`
+	JSONUrl     string `required:"true" split_words:"true"`
 }
 
 func (cfg *Config) IsDevEnv() bool {
