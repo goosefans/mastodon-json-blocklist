@@ -1,4 +1,4 @@
-module github.com/goosefans/mastodon-collaborative-blocklist
+module github.com/goosefans/mastodon-json-blocklist
 
 go 1.19
 

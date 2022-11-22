@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/goosefans/mastodon-collaborative-blocklist/internal/config"
+	"github.com/goosefans/mastodon-json-blocklist/internal/config"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"os"
