@@ -7,7 +7,6 @@ import (
 	"strings"
 )
 
-// Data represents the domain block data of a Mastodon instance
 type Data struct {
 	DomainBlocks []*DomainBlock `json:"domain_blocks"`
 }
@@ -20,7 +19,6 @@ const (
 	BlockSeverityNone    BlockSeverity = "none"
 )
 
-// DomainBlock represents a single domain block entry
 type DomainBlock struct {
 	Domains       []string      `json:"domains"`
 	Severity      BlockSeverity `json:"severity"`
@@ -29,7 +27,6 @@ type DomainBlock struct {
 	Reason        string        `json:"reason"`
 }
 
-// Retrieve retrieves and parses the domain block data currently available under the given URL
 func Retrieve(url string) (*Data, error) {
 	response, err := http.Get(url)
 	if err != nil {
@@ -69,6 +66,7 @@ func (data *Data) Sanitize() {
 				usedDomains[domain] = true
 			}
 		}
+		block.Domains = domains
 		if len(block.Domains) == 0 {
 			continue
 		}
@@ -79,6 +77,5 @@ func (data *Data) Sanitize() {
 
 		blocks = append(blocks, block)
 	}
-
 	data.DomainBlocks = blocks
 }

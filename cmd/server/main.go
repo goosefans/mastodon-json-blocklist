@@ -2,10 +2,14 @@ package main
 
 import (
 	"github.com/goosefans/mastodon-json-blocklist/internal/config"
+	"github.com/goosefans/mastodon-json-blocklist/internal/data"
+	"github.com/goosefans/mastodon-json-blocklist/internal/mastodon"
+	"github.com/goosefans/mastodon-json-blocklist/internal/task"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"os"
 	"os/signal"
+	"time"
 )
 
 func main() {
@@ -28,6 +32,36 @@ func main() {
 		}
 		zerolog.SetGlobalLevel(logLevel)
 	}
+
+	client := &mastodon.Client{
+		URL:         cfg.MastodonBaseURL,
+		AccessToken: cfg.MastodonAccessToken,
+	}
+
+	// Start the synchronization worker
+	workerInterval, err := time.ParseDuration(cfg.TaskInterval)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Invalid task interval.")
+	}
+	log.Info().Str("interval", workerInterval.String()).Msg("Starting synchronization worker...")
+	worker := &task.RepeatingTask{
+		Interval:   workerInterval,
+		RunAtStart: true,
+		Action: func() {
+			log.Debug().Msg("Syncing data...")
+			defer log.Debug().Msg("Finished syncing data.")
+			raw, err := data.Retrieve(cfg.JSONUrl)
+			if err != nil {
+				log.Err(err).Msg("Could not retrieve/parse JSON data.")
+				return
+			}
+			if err := client.SyncData(raw); err != nil {
+				log.Err(err).Msg("Could not sync data.")
+			}
+		},
+	}
+	worker.Start()
+	defer worker.Stop()
 
 	// Wait for a Ctrl-C signal
 	log.Info().Msg("The application has been started. To stop it press Ctrl-C.")
