@@ -178,9 +178,13 @@ func translateData(raw *data.Data) []*DomainBlock {
 	blocks := make([]*DomainBlock, 0, len(raw.DomainBlocks))
 	for _, rawBlock := range raw.DomainBlocks {
 		for _, domain := range rawBlock.Domains {
+			severity := "noop"
+			if rawBlock.Severity == data.BlockSeveritySuspend || rawBlock.Severity == data.BlockSeveritySilence {
+				severity = string(rawBlock.Severity)
+			}
 			blocks = append(blocks, &DomainBlock{
 				Domain:        domain,
-				Severity:      string(rawBlock.Severity),
+				Severity:      severity,
 				RejectMedia:   rawBlock.RejectMedia,
 				RejectReports: rawBlock.RejectReports,
 				PublicComment: rawBlock.Reason,
